@@ -1,0 +1,17 @@
+.iconos-caracteristicas i {
+  font-size: 1.2rem;
+  color: #28a745;
+  background-color: #e6f4ea;
+  border-radius: 6px;
+  padding: 0.3rem 0.4rem;
+  transition: transform 0.2s ease;
+}
+
+.iconos-caracteristicas i:hover {
+  transform: scale(1.2);
+  cursor: default;
+}
+
+.icono-naranja {
+  color: orange !important;
+}

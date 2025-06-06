@@ -1,0 +1,95 @@
+<div class="carrito-flotante show bg-light shadow rounded" [class.show]="visible" *ngIf="visible" style="min-width: 430px;">
+  <!-- Encabezado -->
+  <div class="carrito-header d-flex justify-content-between align-items-center px-3 py-2 bg-light shadow-sm rounded-top">
+    <h5 class="mb-0">Tu Pedido</h5>
+    <button class="btn btn-close-white" (click)="cerrarYLimpiar()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Cuerpo -->
+  <div class="carrito-body p-3 carrito-contenido-scroll" style="max-height: 65vh; overflow-y: auto; padding-bottom: 100px;">
+    <!-- Cabecera -->
+    <div class="row fw-semibold text-muted pb-2 border-bottom">
+      <div class="col-3">Producto</div>
+      <div class="col-2 text-center">Cantidad</div>
+      <div class="col-3 text-end">Precio</div>
+      <div class="col-2 text-end">Total</div>
+    </div>
+
+    <!-- Productos -->
+    <div class="producto-item border-bottom py-3" *ngFor="let p of carrito">
+      <div class="row gx-0 align-items-center">
+        <!-- Producto -->
+        <div class="col-3 fw-semibold text-dark">{{ p.nombre }}</div>
+
+        <!-- Cantidad -->
+        <div class="col-2 text-center">
+          <div *ngIf="!p.editando" class="fw-bold fs-6">{{ p.cantidadPedida }}</div>
+          <div *ngIf="p.editando">
+            <input type="number" [(ngModel)]="p.nuevaCantidad" class="form-control form-control-sm text-center w-100" min="0.1" step="0.1" (keyup.enter)="confirmarCantidad(p)" />
+          </div>
+        </div>
+
+        <!-- Precio con IVA -->
+        <div class="col-3 text-end">
+          <div class="fw-semibold">
+            {{ (p.precio * 1.21) | currency:'EUR':'symbol':'1.2-2' }} / {{ p.unidadDeVenta }}
+          </div>
+        </div>
+
+        <!-- Total con IVA -->
+        <div class="col-2 text-end">
+          <div class="fw-bold text-success fs-6">
+            {{ (p.precio * p.cantidadPedida * 1.21) | currency:'EUR':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-success btn-sm me-2" (click)="editarCantidad(p)">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn btn-danger btn-sm" (click)="eliminar(p.codProductoCatalogo)">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="carrito-footer bg-light shadow-sm p-3 rounded-bottom d-flex flex-column">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-bold fs-5">Total: {{ calcularTotalConIva() | currency:'EUR':'symbol':'1.2-2' }}</span>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 flex-wrap">
+      <button class="btn btn-success px-4" (click)="tramitarPedidoAhora()">Tramitar</button>
+      <button *ngIf="estadoPedido !== 'Tramitar'" class="btn btn-warning px-3" (click)="guardarPedido()">Guardar</button>
+      <button class="btn btn-danger btn-sm" (click)="pedirConfirmacionCancelacion()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Confirmación de cancelación -->
+  <div *ngIf="mostrarConfirmacionCancelacion" class="alert alert-dark m-3 mt-0 rounded text-center">
+    <p class="mb-2"><em>⚠️ ¿Estás seguro de que deseas cancelar el pedido?</em></p>
+    <div class="d-flex justify-content-center gap-2">
+      <button class="btn btn-outline-danger btn-sm" (click)="confirmarCancelacion()">Sí, cancelar</button>
+      <button class="btn btn-outline-secondary btn-sm" (click)="cancelarConfirmacion()">No, continuar</button>
+    </div>
+  </div>
+
+  <!-- Error login -->
+  <div class="mensaje-error-login shadow-lg rounded py-3 px-4" *ngIf="mostrarErrorLogin">
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="text-success fw-semibold">
+        ⚠️ Vaya! Detectamos que no has iniciado sesión.<br>
+        Hazlo para poder completar tu pedido! 🛒
+      </span>
+    </div>
+    <button class="btn btn-success w-100 mt-2" (click)="auth.loginIfNeeded()">
+      <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+    </button>
+  </div>
+</div>

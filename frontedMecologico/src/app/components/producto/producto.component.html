@@ -1,0 +1,189 @@
+<h2 class="my-4 text-success text-center">
+  <i class="bi bi-leaf"></i> Gestión de productos
+</h2>
+
+<!-- Spinner -->
+<div *ngIf="loading" class="text-center my-5">
+  <div class="spinner-border text-success" role="status">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+</div>
+
+<!-- Botones de creación -->
+<div *ngIf="esAdmin && !loading" class="text-center my-3">
+  <button class="btn btn-success me-2" (click)="mostrarFormularioCrear = true">
+    ➕ Crear nuevo producto
+  </button>
+  <button class="btn btn-outline-primary me-2" (click)="mostrarFormularioCategoria = !mostrarFormularioCategoria">
+    🧩 Crear nueva categoría
+  </button>
+  <button class="btn btn-outline-secondary" (click)="mostrarFormularioSubcategoria = !mostrarFormularioSubcategoria">
+    🧩 Crear nueva subcategoría
+  </button>
+</div>
+
+<!-- Formulario de creación de categoría -->
+<div *ngIf="mostrarFormularioCategoria" class="card mx-auto p-4 mb-4" style="max-width: 600px;">
+  <h5 class="mb-3 text-primary">Nueva Categoría</h5>
+  <div class="mb-2"><label>Código</label><input class="form-control" [(ngModel)]="nuevaCategoria.codCategoria" /></div>
+  <div class="mb-2"><label>Nombre</label><input class="form-control" [(ngModel)]="nuevaCategoria.nombre" /></div>
+  <div class="mb-3"><label>Orden</label><input type="number" class="form-control" [(ngModel)]="nuevaCategoria.orden" /></div>
+  <div class="text-end">
+    <button class="btn btn-primary me-2" (click)="crearCategoria()">Guardar</button>
+    <button class="btn btn-outline-secondary" (click)="mostrarFormularioCategoria = false">Cancelar</button>
+  </div>
+</div>
+
+<!-- Formulario de creación de subcategoría -->
+<div *ngIf="mostrarFormularioSubcategoria" class="card mx-auto p-4 mb-4" style="max-width: 600px;">
+  <h5 class="mb-3 text-secondary">Nueva Subcategoría</h5>
+  <div class="mb-2">
+    <label>Categoría</label>
+    <select class="form-select" [(ngModel)]="nuevaSubcategoria.categoriaId">
+      <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</option>
+    </select>
+  </div>
+  <div class="mb-2"><label>Código</label><input class="form-control" [(ngModel)]="nuevaSubcategoria.codCategoria" /></div>
+  <div class="mb-2"><label>Nombre</label><input class="form-control" [(ngModel)]="nuevaSubcategoria.nombre" /></div>
+  <div class="mb-3"><label>Orden</label><input type="number" class="form-control" [(ngModel)]="nuevaSubcategoria.orden" /></div>
+  <div class="text-end">
+    <button class="btn btn-secondary me-2" (click)="crearSubcategoria()">Guardar</button>
+    <button class="btn btn-outline-secondary" (click)="mostrarFormularioSubcategoria = false">Cancelar</button>
+  </div>
+</div>
+
+<!-- Formulario de creación de producto -->
+<div *ngIf="mostrarFormularioCrear" class="card mx-auto p-4 mb-4" style="max-width: 800px;">
+  <h5 class="mb-3 text-success">Nuevo producto</h5>
+
+  <div class="mb-2"><label>Código</label><input class="form-control" [(ngModel)]="productoNuevo.codProducto" /></div>
+  <div class="mb-2"><label>Nombre</label><input class="form-control" [(ngModel)]="productoNuevo.nombre" /></div>
+  <div class="mb-2"><label>Nombre comercial</label><input class="form-control" [(ngModel)]="productoNuevo.nombreComercial" /></div>
+  <div class="mb-2"><label>Unidad de venta</label><input class="form-control" [(ngModel)]="productoNuevo.unidadDeVenta" /></div>
+  <div class="mb-2"><label>Variedad</label><input class="form-control" [(ngModel)]="productoNuevo.variedad" /></div>
+  <div class="mb-2"><label>Código de barras</label><input class="form-control" [(ngModel)]="productoNuevo.codigoBarras" /></div>
+
+  <div class="mb-2">
+    <label>Categoría</label>
+    <select class="form-select" [(ngModel)]="productoNuevo.categoriaId" (change)="onCategoriaSeleccionadaDesdeEvento($event)">
+      <option value="">Selecciona una categoría</option>
+      <option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</option>
+    </select>
+  </div>
+
+  <div class="mb-2">
+    <label>Subcategoría</label>
+    <select class="form-select" [(ngModel)]="productoNuevo.subcategoriaId" [disabled]="!subcategorias?.length">
+      <option value="">Sin subcategoría</option>
+      <option *ngFor="let sub of subcategorias" [value]="sub.id">{{ sub.nombre }}</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label>Características</label>
+    <div class="row">
+      <div class="col-6 col-md-4" *ngFor="let c of caracteristicasDisponibles">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" [value]="c"
+                 [checked]="productoNuevo.caracteristicas.includes(c)"
+                 (change)="toggleCaracteristica(c, $event)" />
+          <label class="form-check-label">{{ c }}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-2"><label>Ingredientes</label><input class="form-control" [ngModel]="productoNuevo.ingredientes.join(', ')" (ngModelChange)="actualizarIngredientes($event)" /></div>
+  <div class="mb-2"><label>Imágenes</label><input class="form-control" [ngModel]="productoNuevo.imagenes.join(', ')" (ngModelChange)="actualizarImagenes($event)" /></div>
+
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" [(ngModel)]="productoNuevo.fraccionable" id="fraccionableCheck" />
+    <label class="form-check-label" for="fraccionableCheck">Fraccionable</label>
+  </div>
+
+  <div class="text-end">
+    <button class="btn btn-success me-2" (click)="crearProducto()">Guardar</button>
+    <button class="btn btn-outline-secondary" (click)="mostrarFormularioCrear = false">Cancelar</button>
+  </div>
+</div>
+
+<!-- Tabla de productos -->
+<div *ngIf="!loading && productos.length > 0" class="container my-4">
+  <div class="mx-auto" style="max-width: 1100px;">
+    <table class="table table-bordered align-middle shadow-sm">
+      <thead class="table-success text-center">
+        <tr>
+          <th>Código</th>
+          <th>Unidad</th>
+          <th>Nombre Comercial</th>
+          <th>Variedad</th>
+          <th>Categoría</th>
+          <th>Subcategoría</th>
+          <th>Características</th>
+          <th *ngIf="esAdmin">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let p of productosPaginados">
+          <tr>
+            <td>{{ p.codProducto }}</td>
+            <td>{{ p.unidadDeVenta }}</td>
+            <td>{{ p.nombreComercial }}</td>
+            <td>{{ p.variedad }}</td>
+            <td>{{ nombresCategoria[p.categoriaId] || '—' }}</td>
+            <td>{{ nombresSubcategoria[p.subcategoriaId] || '—' }}</td>
+            <td>
+              <ul class="mb-0 ps-3">
+                <li *ngFor="let c of p.caracteristicas">
+                  <i class="bi bi-check-circle text-success me-1"></i>{{ c }}
+                </li>
+              </ul>
+            </td>
+            <td *ngIf="esAdmin" class="text-center">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="activarEdicion(p)">✏️</button>
+              <button class="btn btn-sm btn-outline-danger me-1" (click)="eliminarProducto(p.id)">❌</button>
+              <button class="btn btn-sm btn-outline-success" (click)="abrirFormularioCatalogo(p.id)">🧺</button>
+            </td>
+          </tr>
+
+          <!-- Formulario de asociación a catálogo -->
+          <tr *ngIf="mostrarFormularioCatalogoPorProducto[p.id]">
+            <td colspan="8">
+              <div class="card card-body border-success p-3">
+                <h6 class="text-success mb-3">Asociar producto a catálogo</h6>
+                <div class="row g-2">
+                  <div class="col-md-3">
+                    <label>Catálogo</label>
+                    <select class="form-select" [(ngModel)]="formularioCatalogoPorProducto[p.id].catalogoId">
+                      <option *ngFor="let c of catalogos" [value]="c.id">{{ c.nombre }}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2"><label>Coste</label><input type="number" class="form-control" [(ngModel)]="formularioCatalogoPorProducto[p.id].coste" /></div>
+                  <div class="col-md-2"><label>PVP</label><input type="number" class="form-control" [(ngModel)]="formularioCatalogoPorProducto[p.id].pvp" /></div>
+                  <div class="col-md-2"><label>IVA</label><input type="number" class="form-control" [(ngModel)]="formularioCatalogoPorProducto[p.id].iva" /></div>
+                  <div class="col-md-3"><label>Nombre comercial</label><input class="form-control" [(ngModel)]="formularioCatalogoPorProducto[p.id].nombreComercial" /></div>
+                </div>
+                <div class="text-end mt-3">
+                  <button class="btn btn-success me-2" (click)="asociarProductoACatalogo(p.id)">Guardar</button>
+                  <button class="btn btn-outline-secondary" (click)="mostrarFormularioCatalogoPorProducto[p.id] = false">Cancelar</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-center align-items-center mt-3 gap-3">
+      <button class="btn btn-outline-success btn-sm" [disabled]="paginaActual === 1" (click)="paginaActual = paginaActual - 1">◀ Anterior</button>
+      <span class="fw-semibold text-success">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+      <button class="btn btn-outline-success btn-sm" [disabled]="paginaActual === totalPaginas" (click)="paginaActual = paginaActual + 1">Siguiente ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sin productos -->
+<div *ngIf="!loading && productos.length === 0" class="text-center text-muted mt-4">
+  No hay productos disponibles.
+</div>

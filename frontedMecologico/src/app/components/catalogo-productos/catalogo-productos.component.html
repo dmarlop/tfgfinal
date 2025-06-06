@@ -1,0 +1,198 @@
+<!-- Mensaje -->
+<div *ngIf="mensaje" class="alert alert-{{ tipo }} text-center fade show mt-2 mx-3" role="alert">
+  {{ mensaje }}
+</div>
+
+<!-- Título -->
+<h3 class="my-4 text-success text-center">
+  Productos del catálogo {{ catalogoNombre }}
+</h3>
+
+<!-- Spinner -->
+<div *ngIf="loading" class="text-center my-5">
+  <div class="spinner-border text-success"></div>
+</div>
+
+<!-- Contenido -->
+<div *ngIf="!loading" class="mx-auto" style="max-width: 960px;">
+  <div class="row">
+
+    <!-- Filtros -->
+    <div class="col-3">
+<!-- Buscador -->
+<div class="text-center mb-4">
+  <input
+    type="text"
+    class="form-control w-50 mx-auto"
+    placeholder="🔍 Buscar por nombre, categoría, subcategoría, característica..."
+    [(ngModel)]="terminoBusqueda"
+  />
+</div>
+
+      <!-- Categorías -->
+      <div class="mb-3 border-bottom pb-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="text-success mb-0">Filtrar por categoría</h5>
+          <button class="btn btn-sm text-success toggle-btn" (click)="mostrarCategorias = !mostrarCategorias">
+            <i class="fas" [ngClass]="mostrarCategorias ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+        </div>
+        <div *ngIf="mostrarCategorias" class="mt-2">
+          <div *ngFor="let c of categories" class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" [id]="'cat-'+c"
+                   (change)="toggleCategory(c)" [checked]="selectedCategories.includes(c)" />
+            <label class="form-check-label" [for]="'cat-'+c">{{ c }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subcategorías -->
+      <div class="mb-3 border-bottom pb-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="text-success mb-0">Filtrar por subcategoría</h5>
+          <button class="btn btn-sm text-success toggle-btn" (click)="mostrarSubcategorias = !mostrarSubcategorias">
+            <i class="fas" [ngClass]="mostrarSubcategorias ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+        </div>
+        <div *ngIf="mostrarSubcategorias" class="mt-2">
+          <div *ngFor="let s of availableSubcategories" class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" [id]="'sub-'+s"
+                   (change)="toggleSubcategory(s)" [checked]="selectedSubcategories.includes(s)" />
+            <label class="form-check-label" [for]="'sub-'+s">{{ s }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Características -->
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="text-success mb-0">Filtrar por características</h5>
+          <button class="btn btn-sm text-success toggle-btn" (click)="mostrarCaracteristicas = !mostrarCaracteristicas">
+            <i class="fas" [ngClass]="mostrarCaracteristicas ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+        </div>
+        <div *ngIf="mostrarCaracteristicas" class="mt-2">
+          <div *ngFor="let f of features" class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" [id]="f"
+                   (change)="toggleFeature(f)" [checked]="selectedFeatures.includes(f)" />
+            <label class="form-check-label" [for]="f">{{ f }}</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Productos -->
+    <div class="col-9">
+      <div class="list-group">
+        <div class="list-group-item" *ngFor="let p of productosPaginados">
+          <div class="d-flex w-100 justify-content-between align-items-center">
+            <div>
+              <div class="d-flex align-items-center">
+                <h6 class="mb-1">{{ p.nombreComercial }}</h6>
+                <span *ngIf="productosEnCarrito.has(p.id)"
+                      class="text-success ms-2" title="En el carrito">✅</span>
+              </div>
+              <small class="text-muted">
+                {{ p.pvp | currency:'EUR':'symbol':'1.2-2' }} / {{ p.unidadDeVenta }}
+              </small>
+            </div>
+
+            <div class="d-flex flex-column align-items-end">
+              <div *ngIf="erroresCantidad[p.id]" class="text-success small mb-1">
+                Introduce un valor válido
+              </div>
+              <div *ngIf="erroresCantidad[p.id]" class="text-success small mb-1">
+  {{ !p.fraccionable ? 'Solo se permiten cantidades enteras' : 'Introduce un valor válido' }}
+</div>
+
+              <div class="d-flex align-items-center gap-2">
+                <input type="text"
+                       class="form-control form-control-sm" style="width: 4rem"
+                       [(ngModel)]="cantidades[p.id]" />
+                <button class="btn btn-success btn-sm"
+                        (click)="validarYAgregar(p)">
+                  Añadir
+                </button>
+                <!-- Botón Eliminar producto del catálogo (solo para admins) -->
+<button *ngIf="esAdmin" class="btn btn-sm btn-outline-danger ms-2"
+        (click)="eliminarProductoDelCatalogo(p.id)">
+  ❌ Eliminar
+</button>
+
+
+                <button *ngIf="!detalleAbierto[p.id]"
+                        class="btn btn-outline-secondary btn-sm"
+                        (click)="toggleDetalles(p.id)">Detalles ▼</button>
+                <button *ngIf="detalleAbierto[p.id]"
+        class="btn btn-outline-success btn-sm"
+        (click)="toggleDetalles(p.id)">
+  Ocultar ▲
+</button>
+
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="detalleAbierto[p.id]" class="mt-3 small">
+            <div><b>Categoría:</b> {{ p.categoriaNombre || '—' }}</div>
+            <div><b>Subcategoría:</b> {{ p.subcategoriaNombre || '—' }}</div>
+            <div *ngIf="p.caracteristicas?.length">
+              <b>Características:</b>
+              <div class="iconos-caracteristicas d-flex flex-wrap align-items-center gap-2 mt-1">
+                <ng-container *ngFor="let c of p.caracteristicas">
+                  <i
+                    *ngIf="getIconoCaracteristica(c)"
+                    class="fas"
+                    [ngClass]="getIconoCaracteristica(c)"
+                    [title]="c"
+                  ></i>
+                </ng-container>
+              </div>
+            </div>
+            <div *ngIf="p.ingredientesLista?.length">
+              <b>Ingredientes:</b> {{ p.ingredientesLista?.join(', ') }}
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!filteredProducts.length"
+             class="text-center text-muted py-4">
+          No hay productos que coincidan con los filtros.
+        </div>
+      </div>
+
+      <!-- Paginación + Botón Volver -->
+      <!-- Paginación + Botón Volver -->
+<div class="d-flex align-items-center justify-content-start flex-wrap gap-3 mt-4">
+  <!-- Botón volver -->
+  <button class="btn btn-outline-success" (click)="router.navigate(['/'])">
+    <i class="bi bi-arrow-left"></i> Volver al inicio
+  </button>
+
+  <!-- Paginación -->
+  <nav *ngIf="totalPaginas > 1">
+    <ul class="pagination mb-0 ms-2">
+      <li class="page-item" [class.disabled]="paginaActual === 1">
+        <button class="page-link text-success" (click)="cambiarPagina(paginaActual - 1)">Anterior</button>
+      </li>
+
+      <li class="page-item" *ngFor="let page of [].constructor(totalPaginas); let i = index">
+        <button class="page-link text-success"
+                [ngStyle]="{'font-weight': paginaActual === i + 1 ? 'bold' : 'normal'}"
+                (click)="cambiarPagina(i + 1)">
+          {{ i + 1 }}
+        </button>
+      </li>
+
+      <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+        <button class="page-link text-success" (click)="cambiarPagina(paginaActual + 1)">Siguiente</button>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+
+    </div>
+  </div>
+</div>

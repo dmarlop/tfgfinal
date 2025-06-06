@@ -1,0 +1,68 @@
+.hero {
+  background: linear-gradient(to bottom right, #e0f8e0, #f0fff0);
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #2e7d32;
+}
+
+.contenido-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.btn-principal {
+  background-color: #66bb6a;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.destacados {
+  padding: 2rem;
+  text-align: center;
+  background-color: #f5f5f5;
+}
+
+.grid-productos {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.grid-productos img {
+  width: 200px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.beneficios {
+  background-color: #fff;
+  padding: 2rem;
+  text-align: center;
+}
+
+.beneficios ul {
+  list-style: none;
+  padding: 0;
+  font-size: 1.1rem;
+}
+.texto-destacado {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  text-align: justify;
+  color: #2e7d32; /* Verde ecológico */
+
+}
+
+.pie {
+  background-color: #e0f2f1;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #2e7d32;
+}
