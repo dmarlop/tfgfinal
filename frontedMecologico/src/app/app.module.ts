@@ -38,6 +38,8 @@ import { PedidosEntregadosComponent } from './components/pedidos-entregados/pedi
 import { TramitarPedidoComponent } from './components/tramitar-pedido/tramitar-pedido.component';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
+import { environment } from '../environments/environment.prod';
+
 import { ProductoCaracteristicasComponent } from './components/producto-caracteristicas/producto-caracteristicas.component';
 import { LoginComponent } from './auth/login/login.component';
 import { ProductoComponent } from './components/producto/producto.component';
@@ -52,8 +54,9 @@ export function msalInstanceFactory(): PublicClientApplication {
       //clientId: '4669d7f1-0d4b-4e9b-83d9-42745b31d0ad',
       authority: 'https://login.microsoftonline.com/16811ddd-85a5-41f8-9de7-dd9e0a60cb14',
       //authority: 'https://login.microsoftonline.com/5935a814-f2e8-4074-bef8-0f11a03b0de7',
-      redirectUri: 'https://149.50.147.50',
-      postLogoutRedirectUri: 'https://149.50.147.50',
+      redirectUri: 'https://mecologicodavidmarin.com',
+postLogoutRedirectUri: 'https://mecologicodavidmarin.com',
+
       navigateToLoginRequestUrl: false
 
     },
@@ -75,12 +78,13 @@ export function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
   return {
     interactionType: InteractionType.Popup,
     protectedResourceMap: new Map([
-      ['http://localhost:8087/catalogoServer/api', ['api://52dd1ecc-a19c-4c4c-b030-9baf74cddef7/.default']],
-      ['http://localhost:8088/productoServer/api', ['api://52dd1ecc-a19c-4c4c-b030-9baf74cddef7/.default']],
-      ['http://localhost:8089/clienteServer/api', ['api://52dd1ecc-a19c-4c4c-b030-9baf74cddef7/.default']]
+      [environment.apiCatalogoUrl, ['api://52dd1ecc-a19c-4c4c-b030-9baf74cddef7/.default']],
+      [environment.apiProductoUrl, ['api://52dd1ecc-a19c-4c4c-b030-9baf74cddef7/.default']],
+      [environment.apiClienteUrl, ['api://52dd1ecc-a19c-4c4c-b030-9baf74cddef7/.default']]
     ])
   };
 }
+
 
 
 

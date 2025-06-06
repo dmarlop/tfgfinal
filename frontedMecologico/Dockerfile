@@ -1,23 +1,16 @@
-# Usa Node.js directamente (sin Nginx)
-FROM node:18-alpine
+# Etapa 1: Build An# Etapa 1: Build Angular app
+FROM node:18-alpine AS build
 
 WORKDIR /app
-
-# Instala dependencias
 COPY package*.json ./
 RUN npm ci
 
-# Instala Angular CLI globalmente
-RUN npm install -g @angular/cli
-
-# Copia todo el código
 COPY . .
+RUN npm run build -- --configuration production
 
-# Build de producción (opcional, puedes usar solo ng serve si prefieres)
-RUN npm run build
-
-# Expone el puerto 4200
-EXPOSE 4200
-
-# Comando para servir la aplicación (development)
-CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200", "--disable-host-check"]
+# Etapa 2: Servir con Nginx
+FROM nginx:alpine
+COPY --from=build /app/dist/fronted-mecologico /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

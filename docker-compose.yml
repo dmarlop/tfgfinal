@@ -109,9 +109,12 @@ services:
     restart: on-failure
     ports:
       - "80:80"
-    networks:
-      - nuevacarpeta_backend
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - catalogoserver
       - productoserver
       - clienteserver
+    networks:
+      - nuevacarpeta_backend
